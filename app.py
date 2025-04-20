@@ -1,4 +1,6 @@
 import os
+import zipfile
+import gdown
 import json
 import pandas as pd
 from flask import Flask, request, jsonify
@@ -8,7 +10,25 @@ from flask_cors import CORS
 
 
 MODEL_DIR = "sentiment_model"
+MODEL_ZIP = "sentiment_model.zip"
 FEEDBACK_FILE = "user_feedback.json"
+GDRIVE_FILE_ID = "1fcmCfWgcPLGQshqp_vOfL9D9wsaoxj_w" 
+
+
+if not os.path.exists(MODEL_DIR):
+    print("📥 Model not found. Downloading from Google Drive...")
+
+    # Construct GDrive download URL
+    url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+    gdown.download(url, MODEL_ZIP, quiet=False)
+
+    # Unzip the model
+    with zipfile.ZipFile(MODEL_ZIP, 'r') as zip_ref:
+        zip_ref.extractall(".")
+
+    print("✅ Model extracted.")
+else:
+    print("✅ Model already exists locally.")
 
 # Load model
 def load_model():
