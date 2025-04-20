@@ -114,4 +114,5 @@ scheduler.add_job(scheduled_retrain, 'interval', minutes=60)  # Change interval 
 scheduler.start()
 
 if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=3000)
     app.run(debug=True)
