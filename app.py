@@ -8,46 +8,36 @@ from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassifica
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_cors import CORS
 
-
+# 🔧 Config
 MODEL_DIR = "sentiment_model"
 MODEL_ZIP = "sentiment_model.zip"
 FEEDBACK_FILE = "user_feedback.json"
-GDRIVE_FILE_ID = "1fcmCfWgcPLGQshqp_vOfL9D9wsaoxj_w" 
+GDRIVE_FILE_ID = "1fcmCfWgcPLGQshqp_vOfL9D9wsaoxj_w"  # Your Drive file
 
-
+# 🔁 Download model if not present
 if not os.path.exists(MODEL_DIR):
     print("📥 Model not found. Downloading from Google Drive...")
-
-    # Construct GDrive download URL
     url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
     gdown.download(url, MODEL_ZIP, quiet=False)
 
-    # Unzip the model
     with zipfile.ZipFile(MODEL_ZIP, 'r') as zip_ref:
         zip_ref.extractall(".")
-
     print("✅ Model extracted.")
 else:
     print("✅ Model already exists locally.")
 
-# Load model
-def load_model():
-    try:
-        model_dir = "sentiment_model"
-        tokenizer = AutoTokenizer.from_pretrained(model_dir)
-        model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-        return pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
-    except Exception as e:
-        print(f"Error loading model: {e}")
-        return None
+# ✅ Load model once globally for fast response
+print("🔁 Loading model into memory...")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
+sentiment_pipeline = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+print("✅ Model loaded.")
 
-# Initial load
-sentiment_pipeline = load_model()
-
-# Flask app
+# 🚀 Flask setup
 app = Flask(__name__)
 CORS(app)
 
+# 🧠 Label map
 label_map = {
     "LABEL_0": "Negative",
     "LABEL_1": "Neutral",
@@ -92,27 +82,29 @@ def feedback():
 
     return jsonify({"message": "Feedback saved!"})
 
-# 🔁 Retrain every X minutes/hours using APScheduler
+# 🔁 Retraining scheduler
 def scheduled_retrain():
     print("🔁 Checking for feedback to retrain...")
     if not os.path.exists(FEEDBACK_FILE):
         print("No feedback found.")
         return
 
-    import subprocess
     try:
+        import subprocess
         subprocess.run(["python", "retrain_model.py"], check=True)
+
+        # ⚡ Reload the updated model
         global sentiment_pipeline
-        sentiment_pipeline = load_model()
+        sentiment_pipeline = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
         print("✅ Model reloaded after retraining.")
     except Exception as e:
         print(f"❌ Retrain error: {e}")
 
-# Scheduler setup
+# 🔂 Schedule retraining every 60 minutes
 scheduler = BackgroundScheduler()
-scheduler.add_job(scheduled_retrain, 'interval', minutes=60)  # Change interval as needed
+scheduler.add_job(scheduled_retrain, 'interval', minutes=60)
 scheduler.start()
 
+# ✅ Run app (Railway-compatible)
 if __name__ == "__main__":
     app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-    app.run(debug=True)
