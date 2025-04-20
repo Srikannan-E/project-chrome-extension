@@ -1,0 +1,14 @@
+# Ignore the model files
+sentiment_model/
+sentiment_model.zip
+
+# Python cache and build junk
+__pycache__/
+*.pyc
+
+# VS Code / IDE settings
+.vscode/
+*.log
+
+# Environment files (if used)
+.env
