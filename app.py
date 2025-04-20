@@ -14,8 +14,7 @@ import time
 MODEL_DIR = "sentiment_model"
 MODEL_ZIP = "sentiment_model.zip"
 FEEDBACK_FILE = "user_feedback.json"
-GDRIVE_FILE_ID = "1fcmCfWgcPLGQshqp_vOfL9D9wsaoxj_w" 
-
+GDRIVE_FILE_ID = "1_misNtTFhn4e6TJnuLNEIHeYAzsL44cR"
 
 if not os.path.exists(MODEL_DIR):
     print("📥 Model not found. Downloading from Google Drive...")
