@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 import threading
 import asyncio
 
-MODEL_DIR = "sentiment_model"
+MODEL_DIR = "/app/model-store/sentiment_model"
 MODEL_ZIP = "sentiment_model.zip"
 FEEDBACK_FILE = "user_feedback.json"
 GDRIVE_FILE_ID = "1fcmCfWgcPLGQshqp_vOfL9D9wsaoxj_w"
