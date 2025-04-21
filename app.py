@@ -9,6 +9,8 @@ from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassifica
 from apscheduler.schedulers.background import BackgroundScheduler
 from asyncio import to_thread
 from contextlib import asynccontextmanager
+import threading
+import asyncio
 
 MODEL_DIR = "sentiment_model"
 MODEL_ZIP = "sentiment_model.zip"
@@ -79,6 +81,10 @@ async def predict(req: PredictRequest):
     text = req.text.strip()
     if not text:
         return {"error": "No text provided"}
+
+    if sentiment_pipeline is None:
+        return {"error": "Model is still loading. Please try again later."}
+
     # Perform the prediction asynchronously
     result = await to_thread(sentiment_pipeline, text)
     sentiment_label = result[0]["label"]
@@ -145,4 +151,3 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)
-
