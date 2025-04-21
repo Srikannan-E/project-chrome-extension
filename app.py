@@ -19,20 +19,20 @@ GDRIVE_FILE_ID = "1fcmCfWgcPLGQshqp_vOfL9D9wsaoxj_w"
 
 # Download and extract model if not present
 async def download_and_extract_model():
-    if not os.path.exists(MODEL_DIR):  # Check if the directory is missing
+    # Create parent directory if it doesn't exist
+    os.makedirs(os.path.dirname(MODEL_ZIP), exist_ok=True)
+
+    if not os.path.exists(MODEL_DIR):
         print("📥 Model not found. Downloading from Google Drive...")
         url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
         gdown.download(url, MODEL_ZIP, quiet=False)
-        
-        # Check if the ZIP file exists and is not empty
-        if os.path.exists(MODEL_ZIP) and os.path.getsize(MODEL_ZIP) > 0:
-            with zipfile.ZipFile(MODEL_ZIP, 'r') as zip_ref:
-                zip_ref.extractall(MODEL_DIR)  # Extract to the model directory
-            print("✅ Model extracted.")
-        else:
-            print("❌ Model zip file is corrupted or download failed.")
+
+        with zipfile.ZipFile(MODEL_ZIP, 'r') as zip_ref:
+            zip_ref.extractall(os.path.dirname(MODEL_DIR))
+
+        print("✅ Model extracted.")
     else:
-        print("✅ Model already exists locally.")
+        print("✅ Model already exists in volume.")
 
 
 # Load model once
