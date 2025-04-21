@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from apscheduler.schedulers.background import BackgroundScheduler
 from asyncio import to_thread
+from contextlib import asynccontextmanager
 
 MODEL_DIR = "sentiment_model"
 MODEL_ZIP = "sentiment_model.zip"
@@ -46,7 +47,7 @@ label_map = {
 }
 
 # FastAPI App
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -62,12 +63,12 @@ class FeedbackRequest(BaseModel):
     text: str
     sentiment: str
 
-@app.on_event("startup")
-async def startup_event():
-    # Download model if necessary and load the model asynchronously
-    await download_and_extract_model()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global sentiment_pipeline
+    await download_and_extract_model()
     sentiment_pipeline = await load_model()
+    yield  # You can add shutdown cleanup here later if needed
 
 @app.get("/")
 async def home():
