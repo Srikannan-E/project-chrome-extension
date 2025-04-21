@@ -46,6 +46,13 @@ label_map = {
     "LABEL_2": "Positive"
 }
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global sentiment_pipeline
+    await download_and_extract_model()
+    sentiment_pipeline = await load_model()
+    yield  # You can add shutdown cleanup here later if needed
+
 # FastAPI App
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(
@@ -62,13 +69,6 @@ class PredictRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     text: str
     sentiment: str
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global sentiment_pipeline
-    await download_and_extract_model()
-    sentiment_pipeline = await load_model()
-    yield  # You can add shutdown cleanup here later if needed
 
 @app.get("/")
 async def home():
