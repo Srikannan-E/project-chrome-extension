@@ -15,7 +15,7 @@ import asyncio
 MODEL_DIR = "/app/model-store/sentiment_model"
 MODEL_ZIP = "/app/model-store/sentiment_model.zip"
 FEEDBACK_FILE = "user_feedback.json"
-GDRIVE_FILE_ID = "1rGDM5hdNwWgkeTJSdThm4jdcIRvZpRES"
+GDRIVE_FILE_ID = "1MWjTdCFHeYE1OVrpm7EEBDE19Jdtf9uj"
 
 # Download and extract model if not present
 async def download_and_extract_model():
