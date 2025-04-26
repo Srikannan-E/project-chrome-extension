@@ -29,7 +29,6 @@ async def download_and_extract_model():
     if not os.path.exists(MODEL_DIR):
         print("📥 Model not found in volume. Downloading from Google Drive...")
         url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
-        # Download the model zip file into the persistent volume
         gdown.download(url, MODEL_ZIP, quiet=False)
         
         # Extract the zip file contents into the volume path
