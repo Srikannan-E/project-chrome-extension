@@ -29,19 +29,14 @@ label_map = {
 # Download and extract model if not present
 async def download_and_extract_model():
     if not os.path.exists(MODEL_DIR):
-        print("📥 Model not found. Downloading from Google Drive...")
-
-        url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}&confirm=t"
-        try:
-            gdown.download(url, MODEL_ZIP, quiet=False, fuzzy=True, use_cookies=True)
-            with zipfile.ZipFile(MODEL_ZIP, 'r') as zip_ref:
-                zip_ref.extractall(".")
-            print("✅ Model extracted.")
-        except Exception as e:
-            print(f"❌ Failed to download model: {e}")
-            raise e
+        print("📥 Downloading model...")
+        url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+        gdown.download(url, MODEL_ZIP, quiet=False)
+        with zipfile.ZipFile(MODEL_ZIP, 'r') as zip_ref:
+            zip_ref.extractall(".")
+        print("✅ Model extracted.")
     else:
-        print("✅ Model already exists locally.")
+        print("✅ Model exists.")
 
 # Load model once
 async def load_model():
